@@ -6,7 +6,7 @@
 /*   By: ael-hana <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/11/13 17:00:00 by ael-hana          #+#    #+#             */
-/*   Updated: 2016/11/18 15:51:51 by ael-hana         ###   ########.fr       */
+/*   Updated: 2016/11/18 20:29:23 by ael-hana         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,10 +60,14 @@ typedef struct			s_cam
 	int					map_y;
 	double				deltadist_x;
 	double				deltadist_y;
+	double				perpwalldist;
 	double				sidedist_x;
 	double				sidedist_y;
 	int					side;
 	int					hit;
+	int					lineheigth;
+	int					drawstart;
+	int					drawend;
 }						t_cam;
 int						ft_exit_prog(t_env *ptr);
 #endif

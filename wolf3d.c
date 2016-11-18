@@ -6,7 +6,7 @@
 /*   By: ael-hana <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/11/09 13:02:37 by ael-hana          #+#    #+#             */
-/*   Updated: 2016/11/18 15:51:52 by ael-hana         ###   ########.fr       */
+/*   Updated: 2016/11/18 20:29:22 by ael-hana         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -179,6 +179,25 @@ void	check_ray(t_player *p, t_cam *c)
 	}
 }
 
+void	calcul_length(t_player *p, t_cam *c)
+{
+	if (c->side == 0)
+		c->perpwalldist = (c->map_x - c->raypos_x + (1 - p->step_x) / 2) / c->raydir_x;
+	else
+		c->perpwalldist = (c->map_y - c->raypos_y + (1 - p->step_y) / 2) / c->raydir_y;
+	c->lineheigth = (WINDOW_Y / c->perpwalldist);
+	c->drawstart = -c->lineheigth / 2 + WINDOW_Y / 2;
+	if (c->drawstart < 0)
+		c->drawstart = 0;
+	c->drawend = c->lineheigth / 2 + WINDOW_Y / 2;
+	if (c->drawend >= WINDOW_Y)
+		c->drawend = WINDOW_Y - 1;
+	if (c->side == 1)
+	{
+		>>.....<<
+	}
+}
+
 void	calcul_hit(t_player *p, t_cam *c)
 {
 	while (!c->hit)
@@ -195,7 +214,10 @@ void	calcul_hit(t_player *p, t_cam *c)
 			c->map_y += p->step_y;
 			c->side = 1;
 		}
+		if (map(c->map_x, c->map_y) > 0)
+			c->hit = 1;
 	}
+	calcul_length(p, c);
 }
 
 void	draw_map(t_player *p, t_cam *c){
@@ -206,6 +228,7 @@ void	draw_map(t_player *p, t_cam *c){
 	{
 		int_cam(x, c, p);
 		check_ray(p, c);
+		calcul_hit(p, c);
 		++x;
 	}
 }
