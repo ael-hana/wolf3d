@@ -6,7 +6,7 @@
 /*   By: ael-hana <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/11/09 13:02:37 by ael-hana          #+#    #+#             */
-/*   Updated: 2016/11/13 18:08:14 by ael-hana         ###   ########.fr       */
+/*   Updated: 2016/11/18 15:51:52 by ael-hana         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,7 +81,7 @@ void	get_mlx_img(t_env *ptr)
 void	init_mlx(t_env *ptr)
 {
 	ptr->mlx = mlx_init();
-	ptr->win = mlx_new_window(ptr->mlx, WINDOW_X, WINDOW_Y, "fractol");
+	ptr->win = mlx_new_window(ptr->mlx, WINDOW_X, WINDOW_Y, "WOLF3D");
 	get_mlx_img(ptr);
 }
 
@@ -110,10 +110,9 @@ void	pixel_put_to_image(t_env *ptr, int x, int y)
 	}*/
 }
 
-int		main(int ac, char **av)
+int		map(int x, int y)
 {
-	t_env		s;
-	int worldMap[24][24]=
+	static int worldMap[24][24]=
 	{
 		{1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
 		{1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
@@ -140,10 +139,92 @@ int		main(int ac, char **av)
 		{1,4,4,4,4,4,4,4,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
 		{1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}
 	};
+	return (worldMap[x][y]);
+}
+
+void	int_cam(int x, t_cam *c, t_player *p){
+	c->camera_x = 2 * x / (double)WINDOW_X - 1;
+	c->raypos_x = p->start_x;
+	c->raypos_y = p->start_y;
+	c->raydir_x = p->dir_x + p->plane_x * c->camera_x;
+	c->raydir_y = p->dir_y + p->plane_y * c->camera_x;
+	c->deltadist_x = sqrt(1 + (c->raydir_y * c->raydir_y) / (c->raydir_x * c->raydir_x));
+	c->deltadist_y = sqrt(1 + (c->raydir_x * c->raydir_x) / (c->raydir_y * c->raydir_y));
+	c->hit = 0;
+	c->map_x = (int)c->raypos_x;
+	c->map_y = (int)c->raypos_y;
+}
+
+void	check_ray(t_player *p, t_cam *c)
+{
+	if (c->raydir_x < 0)
+	{
+		p->step_x = -1;
+		c->sidedist_x = (c->raypos_x - c->map_x) * c->deltadist_x;
+	}
+	else
+	{
+		p->step_x = 1;
+		c->sidedist_x = (c->map_x + 1 - c->raypos_x) * c->deltadist_x;
+	}
+	if (c->raydir_y < 0)
+	{
+		p->step_y = -1;
+		c->sidedist_y = (c->raypos_y - c->map_y) * c->deltadist_y;
+	}
+	else
+	{
+		p->step_y = 1;
+		c->sidedist_y = (c->map_y + 1 - c->raypos_y) * c->deltadist_y;
+	}
+}
+
+void	calcul_hit(t_player *p, t_cam *c)
+{
+	while (!c->hit)
+	{
+		if (c->sidedist_x < c->sidedist_y)
+		{
+			c->sidedist_x += c->deltadist_x;
+			c->map_x += p->step_x;
+			c->side = 0;
+		}
+		else
+		{
+			c->sidedist_y += c->deltadist_y;
+			c->map_y += p->step_y;
+			c->side = 1;
+		}
+	}
+}
+
+void	draw_map(t_player *p, t_cam *c){
+	int	x;
+
+	x = 0;
+	while (x < WINDOW_X)
+	{
+		int_cam(x, c, p);
+		check_ray(p, c);
+		++x;
+	}
+}
+
+int		main(int ac, char **av)
+{
+	t_env		s;
+	t_cam		c;
 	t_player	p;
 
 	p.start_x = 22;
 	p.start_y = 12;
+	p.dir_x = -1;
+	p.dir_y = 0;
+	p.plane_x = 0;
+	p.plane_y = 0.66;
+	p.time = 0;
+	p.oldtime = 0;
+
 	init_mlx(&s);
 	mlx_put_image_to_window(s.mlx, s.win, s.img, 0, 0);
 	mlx_hook(s.win, DESTROY_NOTIFY, DESTROY_MASK, ft_exit_prog, &s);
