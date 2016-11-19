@@ -1,10 +1,10 @@
-NAME = fractol
+NAME = wolf3d
 
 FLAG = -Wall -Werror -Wextra
 
-SRC = fractol.c\
+SRC = wolf3d.c
 
-OBJ= fractol.o\
+OBJ= wolf3d.o
 
 LIBX = -lm -L libft/ -lft -I/usr/local/include -I/usr/local/lib \
 	   	   -Lminilibx/ -lmlx -framework OpenGL -framework AppKit
@@ -22,7 +22,7 @@ clean:
 	rm -f $(OBJ)
 
 fclean: clean
-	make -C ./libt fclean
+	make -C ./libft fclean
 	rm -f $(NAME)
 
 re: fclean all

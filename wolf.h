@@ -26,7 +26,6 @@ typedef struct			s_env
 {
 	void				*mlx;
 	void				*win;
-	int					color;
 	int					bpp;
 	int					s_line;
 	int					endian;
@@ -68,6 +67,11 @@ typedef struct			s_cam
 	int					lineheigth;
 	int					drawstart;
 	int					drawend;
+	int					color;
+	t_env				*ptr;
+	t_player			*ptr2;
 }						t_cam;
 int						ft_exit_prog(t_env *ptr);
+void					draw_map(t_player *p, t_cam *c);
+int						map(int x, int y);
 #endif

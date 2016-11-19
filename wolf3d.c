@@ -12,55 +12,67 @@
 
 #include "wolf.h"
 
-/*void	ft_btn_event_2(int keycode, t_fractal *f)
+void	ft_btn_event_2(int keycode, t_player *p)
 {
-	if (keycode == KEY_UP)
+	double	olddir_x;
+	double	oldplane;
+
+	if (keycode == KEY_LEFT)
 	{
-		f->y1 -= 0.01;
-		f->y2 -= 0.01;
-	}
-	else if (keycode == KEY_DOWN)
-	{
-		f->y1 += 0.01;
-		f->y2 += 0.01;
-	}
-	else if (keycode == KEY_LEFT)
-	{
-		f->x1 -= 0.01;
-		f->x2 -= 0.01;
+		olddir_x = p->dir_x;
+		p->dir_x = p->dir_x * cos(0.02) - p->dir_y * sin(0.02);
+		p->dir_y = olddir_x * sin(0.02) + p->dir_y * cos(0.02);
+		oldplane = p->plane_x;
+		p->plane_x = oldplane * cos(0.02) - p->plane_y * sin(0.02);
+		p->plane_y = oldplane * sin(0.02) + p->plane_y * cos(0.02);
 	}
 	else if (keycode == KEY_RIGHT)
 	{
-		f->x1 += 0.01;
-		f->x2 += 0.01;
+		olddir_x = p->dir_x;
+		p->dir_x = p->dir_x * cos(-0.02) - p->dir_y * sin(-0.02);
+		p->dir_y = olddir_x * sin(-0.02) + p->dir_y * cos(-0.02);
+		oldplane = p->plane_x;
+		p->plane_x = oldplane * cos(-0.02) - p->plane_y * sin(-0.02);
+		p->plane_y = oldplane * sin(-0.02) + p->plane_y * cos(-0.02);
 	}
 }
-*/
-int		ft_btn_event(int keycode, t_env *ptr)
-{
-/*	t_env	*ptr;
 
-	ptr = f->ptr;
-	if (keycode == KEY_NUM_PLUS)
-		f->zoom += 100;
-	else if (keycode == KEY_NUM_MINUS)
-		f->zoom -= 100;
-	else */if (keycode == KEY_ESC)
-		ft_exit_prog(ptr);/*
-	else if (keycode == KEY_UP || keycode == KEY_DOWN ||
-			keycode == KEY_LEFT || keycode == KEY_RIGHT)
-		ft_btn_event_2(keycode, f);
-	else if (keycode == KEY_MIN)
-		f->it_max -= 10;
-	else if (keycode == KEY_EQUAL)
-		f->it_max += 10;
-	else if (keycode == KEY_C)
-		++ptr->opt;
+int		ft_btn_event(int keycode, t_cam *c)
+{
+	t_env	*ptr;
+	t_player	*p;
+
+	ptr = c->ptr;
+	p = c->ptr2;
+	if (keycode == KEY_ESC)
+		ft_exit_prog(ptr);
+	if (keycode == KEY_UP)
+	{
+		if (map(p->start_x + p->dir_x * 0.05, p->start_y) == 0)
+			p->start_x += (p->dir_x * 0.05);
+		ft_putstr("x : "); ft_putnbr(p->start_x);
+		if (map(p->start_x, p->start_y + p->dir_y * 0.05) == 0)
+			p->start_y += (p->dir_y * 0.05);
+		ft_putstr("y : "); ft_putnbr(p->start_y);
+		ft_putstr("\n");
+	}
+	else if (keycode == KEY_DOWN)
+	{
+		if (map(p->start_x - p->dir_x * 0.1, p->start_y) == 0)
+			p->start_x -= (p->dir_x * 0.1);
+		ft_putstr("x : "); ft_putnbr(p->start_x);
+		if (map(p->start_x, p->start_y - p->dir_y * 0.1) == 0)
+			p->start_y -= (p->dir_y * 0.1);
+		ft_putstr("y : "); ft_putnbr(p->start_y);
+		ft_putstr("\n");
+	}
+	else if (keycode == KEY_LEFT || keycode == KEY_RIGHT)
+		ft_btn_event_2(keycode, p);
 	else
 		return (0);
-	ft_switch_fractal(ptr, f);
-	mlx_put_image_to_window(ptr->mlx, ptr->win, ptr->img.img, 0, 0);
-	display_menu(ptr);*/
+	draw_map(c->ptr2, c);
+	mlx_put_image_to_window(ptr->mlx, ptr->win, ptr->img, 0, 0);
+	//display_menu(ptr);
 	return (0);
 }
 
@@ -85,34 +97,30 @@ void	init_mlx(t_env *ptr)
 	get_mlx_img(ptr);
 }
 
-void	pixel_put_to_image(t_env *ptr, int x, int y)
+void	pixel_put_to_image(t_cam *c, int x, int y, int color)
 {
 	int		pos;
+	t_env	*ptr;
 
+	ptr = c->ptr;
 	pos = (x * (ptr->bpp / 8)) + (y * ptr->s_line);
-	/*if ((ptr->opt % 3) == 0)
-	{*/
-		ptr->data[pos] = (int)ptr->color;
-		ptr->data[pos + 1] = (int)ptr->color >> 8;
-		ptr->data[pos + 2] = (int)ptr->color >> 16;
-	/*}
-	else if ((ptr->opt % 3) == 1)
+	if (!ptr->endian)
 	{
-		ptr->img.data[pos] = (int)ptr->color >> 16;
-		ptr->img.data[pos + 1] = (int)ptr->color >> 8;
-		ptr->img.data[pos + 2] = (int)ptr->color;
+		ptr->data[pos] = color & 0xFF;
+		ptr->data[pos + 1] = (color & 0xFF00) >> 8;
+		ptr->data[pos + 2] = (color & 0xFF0000) >> 16;
 	}
 	else
 	{
-		ptr->img.data[pos] = (int)ptr->color >> 8;
-		ptr->img.data[pos + 1] = (int)ptr->color;
-		ptr->img.data[pos + 2] = (int)ptr->color >> 16;
-	}*/
+		ptr->data[pos] = (color & 0xFF0000) >> 16;
+		ptr->data[pos + 1] = (color & 0xFF00) >> 8;
+		ptr->data[pos + 2] = color & 0xFF;
+	}
 }
 
 int		map(int x, int y)
 {
-	static int worldMap[24][24]=
+	static int worldMap[24][24] =
 	{
 		{1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
 		{1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
@@ -179,6 +187,42 @@ void	check_ray(t_player *p, t_cam *c)
 	}
 }
 
+void		color_1(t_player *p, t_cam *c)
+{
+	if (c->side == 0)
+	{
+		if (p->step_x <= 0)
+			c->color = 0xFF0000;
+		else
+			c->color = 0xFFFF00;
+	}
+	else
+	{
+		if (p->step_y <= 0)
+			c->color = 0x00FF00;
+		else
+			c->color = 0x0000FF;
+	}
+}
+
+void		color_2(t_player *p, t_cam *c)
+{
+	if (c->side == 0)
+	{
+		if (p->step_x <= 0)
+			c->color = 0x5AB479;
+		else
+			c->color = 0x5AB4A6;
+	}
+	else
+	{
+		if (p->step_y <= 0)
+			c->color = 0x5A95B4;
+		else
+			c->color = 0x5A68B4;
+	}
+}
+
 void	calcul_length(t_player *p, t_cam *c)
 {
 	if (c->side == 0)
@@ -193,9 +237,9 @@ void	calcul_length(t_player *p, t_cam *c)
 	if (c->drawend >= WINDOW_Y)
 		c->drawend = WINDOW_Y - 1;
 	if (c->side == 1)
-	{
-		>>.....<<
-	}
+		color_1(p, c);
+	else
+		color_2(p, c);
 }
 
 void	calcul_hit(t_player *p, t_cam *c)
@@ -220,7 +264,27 @@ void	calcul_hit(t_player *p, t_cam *c)
 	calcul_length(p, c);
 }
 
-void	draw_map(t_player *p, t_cam *c){
+void	draw_line_verticale(int x, t_cam *c)
+{
+	int	y;
+
+	y = c->drawstart;
+	while (c->drawend > y)
+	{
+		pixel_put_to_image(c, x, y, c->color);
+		++y;
+	}
+	y = c->drawend;
+	while (WINDOW_Y > y)
+	{
+		pixel_put_to_image(c, x, WINDOW_Y - y - 1, 0xCFECF2);
+		pixel_put_to_image(c, x, y, 0xCCAAFF);
+		++y;
+	}
+}
+
+void	draw_map(t_player *p, t_cam *c)
+{
 	int	x;
 
 	x = 0;
@@ -229,11 +293,12 @@ void	draw_map(t_player *p, t_cam *c){
 		int_cam(x, c, p);
 		check_ray(p, c);
 		calcul_hit(p, c);
+		draw_line_verticale(x, c);
 		++x;
 	}
 }
 
-int		main(int ac, char **av)
+int		main(/*int ac, char **av*/)
 {
 	t_env		s;
 	t_cam		c;
@@ -247,11 +312,13 @@ int		main(int ac, char **av)
 	p.plane_y = 0.66;
 	p.time = 0;
 	p.oldtime = 0;
-
+	c.ptr = &s;
+	c.ptr2 = &p;
 	init_mlx(&s);
+	draw_map(&p, &c);
 	mlx_put_image_to_window(s.mlx, s.win, s.img, 0, 0);
 	mlx_hook(s.win, DESTROY_NOTIFY, DESTROY_MASK, ft_exit_prog, &s);
-	mlx_key_hook(s.win, ft_btn_event, &s);
+	mlx_key_hook(s.win, ft_btn_event, &c);
 	mlx_loop(s.mlx);
 	return (0);
 }
