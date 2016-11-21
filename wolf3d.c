@@ -29,11 +29,11 @@ void	ft_btn_event_2(int keycode, t_player *p)
 	else if (keycode == KEY_RIGHT)
 	{
 		olddir_x = p->dir_x;
-		p->dir_x = p->dir_x * cos(-0.02) - p->dir_y * sin(-0.02);
-		p->dir_y = olddir_x * sin(-0.02) + p->dir_y * cos(-0.02);
+		p->dir_x = p->dir_x * cos(-1 * 0.02) - p->dir_y * sin(-1 * 0.02);
+		p->dir_y = olddir_x * sin(-1 * 0.02) + p->dir_y * cos(-1 * 0.02);
 		oldplane = p->plane_x;
-		p->plane_x = oldplane * cos(-0.02) - p->plane_y * sin(-0.02);
-		p->plane_y = oldplane * sin(-0.02) + p->plane_y * cos(-0.02);
+		p->plane_x = oldplane * cos(-1 * 0.02) - p->plane_y * sin(-1 * 0.02);
+		p->plane_y = oldplane * sin(-1 * 0.02) + p->plane_y * cos(-1 * 0.02);
 	}
 }
 
@@ -44,25 +44,27 @@ int		ft_btn_event(int keycode, t_cam *c)
 
 	ptr = c->ptr;
 	p = c->ptr2;
+	draw_map(c->ptr2, c);
 	if (keycode == KEY_ESC)
 		ft_exit_prog(ptr);
 	if (keycode == KEY_UP)
 	{
-		if (map(p->start_x + p->dir_x * 0.05, p->start_y) == 0)
+		if (map((int)(p->start_x + p->dir_x * 0.05),
+		(int)p->start_y) == 0)
 			p->start_x += (p->dir_x * 0.05);
-		ft_putstr("x : "); ft_putnbr(p->start_x);
-		if (map(p->start_x, p->start_y + p->dir_y * 0.05) == 0)
+		ft_putstr("Avant:\nx : "); ft_putnbr(p->start_x);
+		if (map((int)p->start_x, (int)(p->start_y + p->dir_y * 0.05)) == 0)
 			p->start_y += (p->dir_y * 0.05);
 		ft_putstr("y : "); ft_putnbr(p->start_y);
 		ft_putstr("\n");
 	}
 	else if (keycode == KEY_DOWN)
 	{
-		if (map(p->start_x - p->dir_x * 0.1, p->start_y) == 0)
-			p->start_x -= (p->dir_x * 0.1);
+		if (map((int)(p->start_x - p->dir_x * 0.05), (int)p->start_y) == 0)
+			p->start_x -= (p->dir_x * 0.05);
 		ft_putstr("x : "); ft_putnbr(p->start_x);
-		if (map(p->start_x, p->start_y - p->dir_y * 0.1) == 0)
-			p->start_y -= (p->dir_y * 0.1);
+		if (map((int)p->start_x, (int)(p->start_y - p->dir_y * 0.05)) == 0)
+			p->start_y -= (p->dir_y * 0.05);
 		ft_putstr("y : "); ft_putnbr(p->start_y);
 		ft_putstr("\n");
 	}
@@ -70,7 +72,6 @@ int		ft_btn_event(int keycode, t_cam *c)
 		ft_btn_event_2(keycode, p);
 	else
 		return (0);
-	draw_map(c->ptr2, c);
 	mlx_put_image_to_window(ptr->mlx, ptr->win, ptr->img, 0, 0);
 	//display_menu(ptr);
 	return (0);
@@ -103,64 +104,61 @@ void	pixel_put_to_image(t_cam *c, int x, int y, int color)
 	t_env	*ptr;
 
 	ptr = c->ptr;
-	pos = (x * (ptr->bpp / 8)) + (y * ptr->s_line);
+	pos = (y * ptr->s_line) + (x * (ptr->bpp / 8));
 	if (!ptr->endian)
 	{
-		ptr->data[pos] = color & 0xFF;
-		ptr->data[pos + 1] = (color & 0xFF00) >> 8;
+		ptr->data[pos] = color & 0x0000FF;
+		ptr->data[pos + 1] = (color & 0x00FF00) >> 8;
 		ptr->data[pos + 2] = (color & 0xFF0000) >> 16;
 	}
 	else
 	{
 		ptr->data[pos] = (color & 0xFF0000) >> 16;
-		ptr->data[pos + 1] = (color & 0xFF00) >> 8;
-		ptr->data[pos + 2] = color & 0xFF;
+		ptr->data[pos + 1] = (color & 0x00FF00) >> 8;
+		ptr->data[pos + 2] = color & 0x0000FF;
 	}
 }
 
 int		map(int x, int y)
 {
-	static int worldMap[24][24] =
-	{
-		{1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
-		{1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-		{1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-		{1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-		{1,0,0,0,0,0,2,2,2,2,2,0,0,0,0,3,0,3,0,3,0,0,0,1},
-		{1,0,0,0,0,0,2,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,1},
-		{1,0,0,0,0,0,2,0,0,0,2,0,0,0,0,3,0,0,0,3,0,0,0,1},
-		{1,0,0,0,0,0,2,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,1},
-		{1,0,0,0,0,0,2,2,0,2,2,0,0,0,0,3,0,3,0,3,0,0,0,1},
-		{1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-		{1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-		{1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-		{1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-		{1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-		{1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-		{1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-		{1,4,4,4,4,4,4,4,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-		{1,4,0,4,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-		{1,4,0,0,0,0,5,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-		{1,4,0,4,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-		{1,4,0,4,4,4,4,4,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-		{1,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-		{1,4,4,4,4,4,4,4,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-		{1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}
+	static int	worldmap[20][20] = {
+		{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+		{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+		{1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1},
+		{1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1},
+		{1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 0, 1, 0, 1},
+		{1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1},
+		{1, 0, 0, 1, 1, 1, 1, 0, 1, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1},
+		{1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1},
+		{1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1},
+		{1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1},
+		{1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1},
+		{1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1},
+		{1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1},
+		{1, 0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1},
+		{1, 0, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1},
+		{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+		{1, 0, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1},
+		{1, 0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+		{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+		{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
 	};
-	return (worldMap[x][y]);
+	return (worldmap[x][y]);
 }
 
 void	int_cam(int x, t_cam *c, t_player *p){
-	c->camera_x = 2 * x / (double)WINDOW_X - 1;
+	c->camera_x = 2 * x / (double)(WINDOW_X) - 1;
 	c->raypos_x = p->start_x;
 	c->raypos_y = p->start_y;
 	c->raydir_x = p->dir_x + p->plane_x * c->camera_x;
 	c->raydir_y = p->dir_y + p->plane_y * c->camera_x;
-	c->deltadist_x = sqrt(1 + (c->raydir_y * c->raydir_y) / (c->raydir_x * c->raydir_x));
-	c->deltadist_y = sqrt(1 + (c->raydir_x * c->raydir_x) / (c->raydir_y * c->raydir_y));
-	c->hit = 0;
 	c->map_x = (int)c->raypos_x;
 	c->map_y = (int)c->raypos_y;
+	c->deltadist_x = sqrt(1 + (c->raydir_y * c->raydir_y) /
+					(c->raydir_x * c->raydir_x));
+	c->deltadist_y = sqrt(1 + (c->raydir_x * c->raydir_x) /
+					(c->raydir_y * c->raydir_y));
+	c->hit = 0;
 }
 
 void	check_ray(t_player *p, t_cam *c)
@@ -168,22 +166,22 @@ void	check_ray(t_player *p, t_cam *c)
 	if (c->raydir_x < 0)
 	{
 		p->step_x = -1;
-		c->sidedist_x = (c->raypos_x - c->map_x) * c->deltadist_x;
+		c->sidedist_x = (c->raypos_x - (double)c->map_x) * c->deltadist_x;
 	}
 	else
 	{
 		p->step_x = 1;
-		c->sidedist_x = (c->map_x + 1 - c->raypos_x) * c->deltadist_x;
+		c->sidedist_x = ((double)c->map_x + 1.0 - c->raypos_x) * c->deltadist_x;
 	}
 	if (c->raydir_y < 0)
 	{
 		p->step_y = -1;
-		c->sidedist_y = (c->raypos_y - c->map_y) * c->deltadist_y;
+		c->sidedist_y = (c->raypos_y - (double)c->map_y) * c->deltadist_y;
 	}
 	else
 	{
 		p->step_y = 1;
-		c->sidedist_y = (c->map_y + 1 - c->raypos_y) * c->deltadist_y;
+		c->sidedist_y = ((double)c->map_y + 1 - c->raypos_y) * c->deltadist_y;
 	}
 }
 
@@ -226,11 +224,12 @@ void		color_2(t_player *p, t_cam *c)
 void	calcul_length(t_player *p, t_cam *c)
 {
 	if (c->side == 0)
-		c->perpwalldist = (c->map_x - c->raypos_x + (1 - p->step_x) / 2) / c->raydir_x;
+		c->perpwalldist = fabs((c->map_x - c->raypos_x + (1 - p->step_x) / 2)
+							/ c->raydir_x);
 	else
-		c->perpwalldist = (c->map_y - c->raypos_y + (1 - p->step_y) / 2) / c->raydir_y;
-	c->lineheigth = (WINDOW_Y / c->perpwalldist);
-	c->drawstart = -c->lineheigth / 2 + WINDOW_Y / 2;
+		c->perpwalldist = fabs((c->map_y - c->raypos_y + (1 - p->step_y) / 2) / c->raydir_y);
+	c->lineheigth = abs((int)(WINDOW_Y / c->perpwalldist));
+	c->drawstart = (-1 * c->lineheigth) / 2 + WINDOW_Y / 2;
 	if (c->drawstart < 0)
 		c->drawstart = 0;
 	c->drawend = c->lineheigth / 2 + WINDOW_Y / 2;
@@ -244,7 +243,7 @@ void	calcul_length(t_player *p, t_cam *c)
 
 void	calcul_hit(t_player *p, t_cam *c)
 {
-	while (!c->hit)
+	while (c->hit == 0)
 	{
 		if (c->sidedist_x < c->sidedist_y)
 		{
@@ -304,14 +303,14 @@ int		main(/*int ac, char **av*/)
 	t_cam		c;
 	t_player	p;
 
-	p.start_x = 22;
-	p.start_y = 12;
+	p.start_x = 18;
+	p.start_y = 18;
 	p.dir_x = -1;
 	p.dir_y = 0;
-	p.plane_x = 0;
+	p.plane_x = 0.0;
 	p.plane_y = 0.66;
-	p.time = 0;
-	p.oldtime = 0;
+	//p.time = 0;
+	//p.oldtime = 0;
 	c.ptr = &s;
 	c.ptr2 = &p;
 	init_mlx(&s);
