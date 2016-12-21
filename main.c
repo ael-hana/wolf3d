@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   main.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: ael-hana <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2016/12/21 08:52:35 by ael-hana          #+#    #+#             */
+/*   Updated: 2016/12/21 08:53:28 by ael-hana         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "wolf.h"
 
 int				quit_program(t_env *e)
@@ -32,7 +44,7 @@ void			display_menu(t_env *e)
 	}
 }
 
-void		ft_msg_error(char *msg)
+void			ft_msg_error(char *msg)
 {
 	if (msg != NULL)
 		ft_putendl(msg);
@@ -52,7 +64,7 @@ int				run_hook(t_env *e)
 	return (0);
 }
 
-int			main(void)
+int				main(void)
 {
 	t_env	*e;
 

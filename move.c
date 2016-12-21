@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   move.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: ael-hana <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2016/12/21 08:52:43 by ael-hana          #+#    #+#             */
+/*   Updated: 2016/12/21 08:54:00 by ael-hana         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "wolf.h"
 
 void		move_up(t_env *e)
@@ -46,7 +58,8 @@ void		move_left(t_env *e)
 	e->wolf->dir_x = e->wolf->dir_x * cos(0.02) - e->wolf->dir_y * sin(0.02);
 	e->wolf->dir_y = olddirx * sin(0.02) + e->wolf->dir_y * cos(0.02);
 	oldplanex = e->wolf->plane_x;
-	e->wolf->plane_x = e->wolf->plane_x * cos(0.02) - e->wolf->plane_y * sin(0.02);
+	e->wolf->plane_x = e->wolf->plane_x * cos(0.02) - e->wolf->plane_y *
+						sin(0.02);
 	e->wolf->plane_y = oldplanex * sin(0.02) + e->wolf->plane_y * cos(0.02);
 }
 
